@@ -1,0 +1,116 @@
+[artifact.html](https://github.com/user-attachments/files/22694698/artifact.html)
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<title>نمایش محصولات</title>
+<style>
+    body {
+        font-family: Tahoma, sans-serif;
+        margin: 20px;
+        background: #f5f5f5;
+        color: #333;
+    }
+    h1 {
+        text-align: center;
+    }
+    form {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    input, textarea {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    button {
+        padding: 10px 20px;
+        border: none;
+        background: #28a745;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .products {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    .product-card {
+        background: white;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    .product-card img {
+        max-width: 100%;
+        border-radius: 8px;
+    }
+</style>
+</head>
+<body>
+
+<h1>گالری محصولات</h1>
+
+<form id="productForm">
+    <input type="text" id="productName" placeholder="نام محصول" required>
+    <textarea id="productDesc" placeholder="توضیحات محصول" required></textarea>
+    <input type="file" id="productImage" accept="image/*" required>
+    <button type="submit">افزودن محصول</button>
+</form>
+
+<div class="products" id="productsContainer"></div>
+
+<script>
+    const form = document.getElementById('productForm');
+    const container = document.getElementById('productsContainer');
+    let products = JSON.parse(localStorage.getItem('products') || '[]');
+
+    function renderProducts() {
+        container.innerHTML = '';
+        products.forEach((p, index) => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <img src="${p.image}" alt="${p.name}">
+                <h3>${p.name}</h3>
+                <p>${p.desc}</p>
+                <button onclick="deleteProduct(${index})" style="background:red">حذف</button>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function deleteProduct(i) {
+        products.splice(i, 1);
+        localStorage.setItem('products', JSON.stringify(products));
+        renderProducts();
+    }
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('productName').value;
+        const desc = document.getElementById('productDesc').value;
+        const file = document.getElementById('productImage').files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const image = e.target.result;
+            products.push({name, desc, image});
+            localStorage.setItem('products', JSON.stringify(products));
+            renderProducts();
+        }
+        reader.readAsDataURL(file);
+        form.reset();
+    });
+
+    renderProducts();
+</script>
+
+</body>
+</html>
